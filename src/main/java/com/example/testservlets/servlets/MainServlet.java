@@ -24,12 +24,25 @@ public class MainServlet extends HttpServlet {
 
         List<Model> models = dao.getAllModels();
 
+        List<Model.Company> companies = dao.getAllCompanies();
+
         request.setAttribute("models", models);
+        request.setAttribute("companies", companies);
         request.getRequestDispatcher("main.jsp").forward(request,response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        final int id = -1;
+        final String name = request.getParameter("name");
+        final String quantity = request.getParameter("quantity");
+        final String company_id = request.getParameter("company_id");
+
+        Model.Company company = dao.getCompanyByModels(Integer.parseInt(company_id));
+        Model modelNew = new Model(id, name, Integer.parseInt(quantity), company);
+
+        dao.create(modelNew);
+        response.sendRedirect("/");
     }
 }

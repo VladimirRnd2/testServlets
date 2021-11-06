@@ -8,8 +8,8 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 
-@WebServlet(name = "DeleteServlet", value = "/delete")
-public class DeleteServlet extends HttpServlet {
+@WebServlet(name = "DeleteCompanyServlet", value = "/deleteCompany")
+public class DeleteCompanyServlet extends HttpServlet {
 
     private ModelDao dao;
 
@@ -20,15 +20,13 @@ public class DeleteServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
-        request.setCharacterEncoding("UTF-8");
-
         final String id = request.getParameter("id");
 
-        Model model = dao.read(Integer.parseInt(id));
+        Model.Company company = dao.getCompanyById(Integer.parseInt(id));
 
-        request.setAttribute("model", model);
-        request.getRequestDispatcher("delete.jsp").forward(request, response);
+        request.setAttribute("company", company);
+
+        request.getRequestDispatcher("deleteCompany.jsp").forward(request, response);
     }
 
     @Override
@@ -36,8 +34,8 @@ public class DeleteServlet extends HttpServlet {
 
         final String id = request.getParameter("id");
 
-        dao.delete(Integer.parseInt(id));
+        dao.deleteCompanyById(Integer.parseInt(id));
 
-        response.sendRedirect("/");
+        response.sendRedirect("/create");
     }
 }

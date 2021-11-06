@@ -182,7 +182,58 @@ public class ModelDao implements Dao<Model,Integer>{
         return modelList;
     }
 
+    public boolean insertNewCompany(Model.Company company) {
+        boolean result = false;
+
+        try (PreparedStatement statement = connection.prepareStatement(SQLModel.INSERT_NEW_COMPANY.query)) {
+            statement.setString(1,company.getName());
+            statement.setString(2, company.getCountry());
+
+            result = statement.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public boolean deleteCompanyById(int id) {
+        boolean result = false;
+
+        try (PreparedStatement statement = connection.prepareStatement(SQLModel.DELETE_COMPANY_BY_ID.query)) {
+            statement.setInt(1, id);
+
+            result = statement.executeQuery().next();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public Model.Company getCompanyById(int id) {
+        Model.Company company = null;
+
+        try (PreparedStatement statement = connection.prepareStatement(SQLModel.GET_COMPANY_BY_ID.query)) {
+            statement.setInt(1,id);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            if(resultSet.next()) {
+                company = new Model.Company();
+                company.setId(id);
+                company.setName(resultSet.getString("name"));
+                company.setCountry(resultSet.getString("country"));
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return company;
+    }
+
     enum SQLModel {
+        GET_COMPANY_BY_ID("SELECT * FROM companies WHERE id = (?)"),
+        DELETE_COMPANY_BY_ID("DELETE FROM companies WHERE id = (?)"),
+        INSERT_NEW_COMPANY("INSERT INTO companies (id, name, country) VALUES (DEFAULT, (?), (?)) RETURNING id"),
         GET_COMPANY_BY_MODELS("SELECT * FROM companies WHERE id = (?)"),
         GET_ALL_MODELS("SELECT * FROM models"),
         GET_ALL_COMPANIES("SELECT * FROM companies"),
