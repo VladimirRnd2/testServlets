@@ -4,37 +4,40 @@ import com.example.testservlets.config.JDBC_Connection;
 import com.example.testservlets.entities.Model;
 import lombok.SneakyThrows;
 
+import org.junit.Rule;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 class ModelDaoTest {
 
+    @Rule
     private static PostgreSQLContainer postgreSQLContainer;
     private static ModelDao modelDao;
     private static Connection connection;
     private static Model model;
 
-
     @BeforeAll
     @SneakyThrows
     public static void init() {
-        postgreSQLContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres:13-alpine")
+        postgreSQLContainer = (PostgreSQLContainer) new PostgreSQLContainer("postgres")
                 .withExposedPorts(5432);
         postgreSQLContainer
-                .withDatabaseName("test")
-                .withUsername("test")
-                .withPassword("test")
-                .withInitScript("dbtest.sql");
+                .withDatabaseName("mydb")
+                .withUsername("myuser")
+                .withPassword("mypass").withInitScript("dbtest.sql");
         postgreSQLContainer.start();
 
         assertTrue(postgreSQLContainer.isRunning());
@@ -63,12 +66,8 @@ class ModelDaoTest {
 
     }
 
-    @Test
-    void some() {
-        assertTrue(postgreSQLContainer.isRunning());
-    }
 
-//    @SneakyThrows
+    @SneakyThrows
     @Test
     void create() {
         String name = "M65";
@@ -87,12 +86,78 @@ class ModelDaoTest {
         assertTrue(modelDao.create(model));
     }
 
+    @SneakyThrows
     @Test
     void update() {
-        String one = "one";
-        String first = "one";
 
-        assertEquals(one,first);
+        int id = 2;
+        String name = "RazorV4";
+        int quantity = 7;
+
+        Model.Company company = new Model.Company();
+
+        company.setName("LADA");
+        company.setCountry("Russia");
+
+        Model model = new Model(id,name, quantity, company);
+
+        assertTrue(modelDao.update(model));
+    }
+
+    @SneakyThrows
+    @Test
+    void delete() {
+
+        int id = 3;
+        String name = "RazorV5";
+        int quantity = 8;
+
+        Model.Company company = new Model.Company();
+
+        company.setName("LADA");
+        company.setCountry("Russia");
+
+        Model model = new Model(id,name, quantity, company);
+
+        assertTrue(modelDao.delete(model.getId()));
+    }
+
+    @SneakyThrows
+    @Test
+    void read () {
+
+        int id = 4;
+        String name = "RazorV6";
+        int quantity = 9;
+
+        Model.Company company = new Model.Company();
+
+        company.setName("LADA");
+        company.setCountry("Russia");
+
+        Model model = new Model(id,name, quantity, company);
+        assertTrue(modelDao.create(model));
+        assertEquals("RazorV6", model.getName());
+    }
+
+    @SneakyThrows
+    @Test
+    void getAll() {
+        List<Model> modelList = modelDao.getAllModels();
+        assertFalse(modelList.isEmpty());
+
+        int id = 6;
+        String name = "RazorV19";
+        int quantity = 13;
+
+        Model.Company company = new Model.Company();
+
+        company.setName("LADA");
+        company.setCountry("Russia");
+
+        Model model = new Model(id,name, quantity, company);
+        assertTrue(modelDao.create(model));
+        assertEquals("RazorV19", model.getName());
     }
 
 
